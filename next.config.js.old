@@ -1,0 +1,26 @@
+const fetch = require('isomorphic-unfetch');
+const withCSS = require('@zeit/next-css')
+
+module.exports = withCSS({
+    cssModules: true,
+    exportTrailingSlash: true,
+    exportPathMap: async function() {
+        const paths = {
+            '/': { page: '/' },
+            '/about': { page: '/about' },
+            '/blog': { page: '/blog' },
+            '/tvshow': { page: '/tvshow' }
+        }
+
+        const res = await fetch('https://api.tvmaze.com/search/shows?q=batman');
+        const data = await res.json();
+        const shows = data.map(entry => entry.show);
+
+        shows.forEach(show => {
+            paths[`/tv/${show.id}`] = { page: '/tv/[id]', query: { id: show.id } };
+        });
+      
+          
+        return paths;
+    }
+})
